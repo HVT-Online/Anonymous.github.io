@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HVT: The Ghost</title>
+    <style>
+        /* --- MENGUBAH FONT MENJADI TEMA SCI-FI / TECH --- */
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace; /* Font Body Berubah */
+            background-image: radial-gradient(circle at 50% 0%, #1f1f1f 0%, #000000 70%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative; /* Diperlukan untuk overlay scanlines */
+        }
+
+        /* --- EFEK TAMBAHAN: SCANLINES OVERLAY (HALUS) --- */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 9998; /* Di bawah modal, di atas segalanya */
+            animation: scanlineMove 5s linear infinite;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-text {
+            font-family: 'Chakra Petch', sans-serif; /* Font Heading Berubah */
+            font-size: 2.5rem;
+            color: #d32f2f;
+            letter-spacing: 5px;
+            animation: blinkText 1s infinite alternate;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 2px;
+            background-color: #333;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            left: -50px;
+            width: 50px;
+            height: 100%;
+            background-color: #d32f2f;
+            box-shadow: 0 0 10px #d32f2f;
+            animation: scanBar 1.5s infinite linear;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative; /* Diperlukan untuk elemen pseudo ber-animasi */
+            z-index: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            /* Tambahan Animasi Fade-in untuk Header Keseluruhan */
+            animation: fadeIn 1s ease-out 2.2s both;
+        }
+
+        .logo {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 2rem;
+            color: #d32f2f;
+            letter-spacing: 2px;
+            display: flex; 
+            align-items: center;
+            gap: 10px;
+            animation: textFlicker 4s infinite; 
+        }
+
+        .logo svg {
+            animation: shieldHeartbeat 2s infinite; 
+        }
+
+        .btn-claim {
+            background-color: #d32f2f;
+            color: white;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+            animation: pulseAlert 2s infinite; 
+            font-family: 'Chakra Petch', sans-serif;
+        }
+
+        .btn-claim:hover {
+            background-color: #b71c1c;
+            box-shadow: 0 0 15px rgba(211, 47, 47, 0.5);
+        }
+
+        .hero {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .hero-text h1 {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 4.5rem; /* Disesuaikan sedikit agar fit dengan font baru */
+            line-height: 1;
+            margin: 0;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: fadeIn 1s ease-out 2.5s both, titleGlow 3s ease-in-out infinite alternate 3.5s; 
+        }
+
+        .status {
+            color: #aaaaaa;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out 2.7s both; 
+        }
+
+        .bounty-box {
+            border: 2px solid #cfa85e;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            background: rgba(207, 168, 94, 0.05);
+            box-shadow: 0 0 20px rgba(207, 168, 94, 0.2);
+            animation: fadeIn 1s ease-out 2.9s both; 
+        }
+
+        .bounty-label {
+            color: #cfa85e;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .bounty-amount {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 4.5rem;
+            color: #e8c374;
+            margin: 0;
+            line-height: 1;
+        }
+
+        /* --- PERBAIKAN ANIMASI FOTO PROFIL (FLOAT + FADE IN) --- */
+        .hero-image {
+            flex-shrink: 0;
+            width: 350px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            /* border: 1px solid #333; */ /* --- GARIS TEPI DIHAPUS --- */
+            /* Fade in saja untuk kotaknya agar tidak bentrok dengan transform float */
+            animation: fadeIn 1s ease-out 2.5s both; 
+        }
+
+        .hero-image img {
+            width: 100%;
+            display: block;
+            /* Float dipindahkan ke img secara langsung sehingga animasinya kembali normal */
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section-box {
+            background: #151515;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            animation: fadeIn 1s ease-out both; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efek Kilatan Cyberpunk Halus pada Hover Kotak */
+        .section-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(211, 47, 47, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .section-box:hover::after {
+            left: 100%;
+        }
+
+        .section-box:nth-child(1) { animation-delay: 3.1s; }
+        .section-box:nth-child(2) { animation-delay: 3.3s; }
+        .section-box:nth-child(3) { animation-delay: 3.5s; }
+        .section-box:nth-child(4) { animation-delay: 3.7s; }
+
+        .section-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-top: 0;
+            color: #eeeeee;
+        }
+
+        .data-list p {
+            margin: 10px 0;
+            color: #aaaaaa;
+            /* Menambahkan dasar untuk animasi cascading pada teks */
+            opacity: 0;
+            animation: slideInRight 0.6s ease-out both;
+        }
+
+        .data-list span {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .activity-log p {
+            margin: 15px 0;
+            color: #aaaaaa;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            /* Menambahkan dasar untuk animasi cascading pada teks */
+            opacity: 0;
+            animation: slideInRight 0.6s ease-out both;
+        }
+
+        .activity-log .time {
+            color: #e8c374;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            min-width: 55px;
+        }
+
+        .threat-meter-container {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .meter-glow {
+            box-shadow: 0 0 15px rgba(211, 47, 47, 0.4);
+            border-radius: 2px;
+        }
+
+        .meter-bar {
+            height: 18px;
+            width: 100%;
+            background: linear-gradient(90deg, #f57f17 0%, #d32f2f 100%);
+            -webkit-mask-image: repeating-linear-gradient(to right, black, black 12px, transparent 12px, transparent 15px);
+            mask-image: repeating-linear-gradient(to right, black, black 12px, transparent 12px, transparent 15px);
+            /* Tambahan Animasi Meter Bar Terisi */
+            animation: fillMeter 1.5s ease-out 4s both, threatGlowPulse 3s infinite alternate;
+        }
+
+        .threat-level-text {
+            font-size: 0.9rem;
+            color: #aaaaaa;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+            animation: fadeIn 0.8s ease-out 4.2s both;
+        }
+
+        .threat-level-text span {
+            color: #e8c374;
+            font-weight: bold;
+        }
+
+        .threat-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* Menambahkan dasar untuk animasi cascading pada teks */
+            opacity: 0;
+            animation: slideInRight 0.6s ease-out both;
+        }
+
+        .stat-row .label {
+            color: #aaaaaa;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .stat-row .value {
+            color: #ffffff;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        /* --- DELAY KHUSUS UNTUK ANIMASI MUNCUL BERURUTAN (CASCADING TEXT) --- */
+        .section-box:nth-child(1) .data-list p:nth-child(1) { animation-delay: 3.3s; }
+        .section-box:nth-child(1) .data-list p:nth-child(2) { animation-delay: 3.5s; }
+        .section-box:nth-child(1) .data-list p:nth-child(3) { animation-delay: 3.7s; }
+        .section-box:nth-child(1) .data-list p:nth-child(4) { animation-delay: 3.9s; }
+
+        .section-box:nth-child(2) .data-list p:nth-child(1) { animation-delay: 3.5s; }
+        .section-box:nth-child(2) .data-list p:nth-child(2) { animation-delay: 3.7s; }
+        .section-box:nth-child(2) .data-list p:nth-child(3) { animation-delay: 3.9s; }
+        .section-box:nth-child(2) .data-list p:nth-child(4) { animation-delay: 4.1s; }
+
+        .section-box:nth-child(3) .activity-log p:nth-child(1) { animation-delay: 3.7s; }
+        .section-box:nth-child(3) .activity-log p:nth-child(2) { animation-delay: 3.9s; }
+        .section-box:nth-child(3) .activity-log p:nth-child(3) { animation-delay: 4.1s; }
+        .section-box:nth-child(3) .activity-log p:nth-child(4) { animation-delay: 4.3s; }
+
+        .section-box:nth-child(4) .stat-row:nth-child(1) { animation-delay: 3.9s; }
+        .section-box:nth-child(4) .stat-row:nth-child(2) { animation-delay: 4.1s; }
+        .section-box:nth-child(4) .stat-row:nth-child(3) { animation-delay: 4.3s; }
+        .section-box:nth-child(4) .stat-row:nth-child(4) { animation-delay: 4.5s; }
+
+        /* --- STYLE MODAL / POP-UP --- */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 10000; /* Ditingkatkan di atas scanlines */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #111;
+            margin: 10% auto;
+            padding: 30px;
+            border: 1px solid #d32f2f;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 30px rgba(211, 47, 47, 0.4);
+            position: relative; /* Diperlukan untuk pseudo-elemen */
+            overflow: hidden;
+        }
+
+        /* Efek Berdenyut di sekeliling modal */
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: rgba(211, 47, 47, 0.1);
+            z-index: -1;
+            border-radius: 9px;
+            animation: modalBorderPulse 2s infinite alternate;
+        }
+
+        .close-btn {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #d32f2f;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #aaaaaa;
+            margin-bottom: 8px;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #050505;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #d32f2f;
+        }
+
+        /* --- KUMPULAN KEYFRAMES (ANIMASI) --- */
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        /* Animasi Baru: Slide dari kanan yang mulus untuk teks berurutan */
+        @keyframes slideInRight {
+            0% { opacity: 0; transform: translateX(-20px); filter: blur(3px); }
+            100% { opacity: 1; transform: translateX(0); filter: blur(0); }
+        }
+
+        /* Animasi Baru: Meter bar progres / pengisian */
+        @keyframes fillMeter {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes pulseAlert {
+            0% { box-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(211, 47, 47, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes blinkText {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scanBar {
+            0% { left: -50px; }
+            100% { left: 100%; }
+        }
+
+        @keyframes shieldHeartbeat {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px #d32f2f); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 12px #d32f2f); }
+        }
+
+        @keyframes textFlicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: none; opacity: 1; }
+            20%, 24%, 55% { text-shadow: 0 0 15px rgba(211,47,47,0.8); opacity: 0.7; }
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+            to { text-shadow: 0 0 20px rgba(255,255,255,0.2), 2px 2px 4px rgba(0,0,0,0.5); color: #f0f0f0; }
+        }
+
+        /* Animasi Tambahan: Pergerakan halus scanlines overlay */
+        @keyframes scanlineMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(2px); }
+        }
+
+        /* Animasi Tambahan: Denyut halus pada meteran ancaman */
+        @keyframes threatGlowPulse {
+            from { box-shadow: 0 0 5px rgba(211, 47, 47, 0.4); }
+            to { box-shadow: 0 0 20px rgba(211, 47, 47, 0.7); }
+        }
+
+        /* Animasi Tambahan: Denyut halus pada perbatasan modal */
+        @keyframes modalBorderPulse {
+            from { opacity: 0.5; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.01); }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero-text h1 {
+                font-size: 3.5rem;
+            }
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+
+<div id="loading-screen">
+    <div class="loading-text">DECRYPTING INTEL...</div>
+    <div class="loading-bar"></div>
+</div>
+
+<div class="container">
+    <header>
+        <div class="logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            HVT DATABASE
+        </div>
+        <button class="btn-claim" id="openReportBtn">Laporkan Target</button>
+    </header>
+
+    <div class="hero">
+        <div class="hero-text">
+            <h1>High-Profile Target:<br>Capture Requested</h1>
+            <p class="status">HVT CODE-NAME: 'THE GHOST' | STATUS: ACTIVE - EVASIVE</p>
+            
+            <div class="bounty-box">
+                <div class="bounty-label">Bounty Confirmed</div>
+                <div class="bounty-amount">$1,000,000</div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="IMG_0286.png" alt="Buronan The Ghost">
+        </div>
+    </div>
+
+    <div class="details-grid">
+        <div class="section-box">
+            <h2 class="section-title">Dossier</h2>
+            <div class="data-list">
+                <p>ALIAS: <span>The Ghost</span></p>
+                <p>TINGKAT BAHAYA: <span>Kelas Atas (Level 5)</span></p>
+                <p>PELANGGARAN: <span>Terlalu elegan untuk ditangkap, mengganggu keseimbangan sistem.</span></p>
+                <p>STATUS PERLENGKAPAN: <span>Membawa perangkat komunikasi canggih. Pendekatan dengan hati-hati.</span></p>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2 class="section-title">Location Intel</h2>
+            <div class="data-list">
+                <p>KOORDINAT TERAKHIR: <span>-8.4953, 117.4271</span></p>
+                <p>LAST-KNOWN POINT: <span>Sumbawa, Nusa Tenggara Barat</span></p>
+                <p>ZONA WAKTU AKTIF: <span>WITA</span></p>
+                <p>CATATAN AGEN: <span>Target sering terlihat berpindah lokasi dengan cepat. Sulit dilacak oleh radar biasa.</span></p>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2 class="section-title">Activity Log</h2>
+            <div class="activity-log">
+                <p><span class="time">[12:45]</span> Terdeteksi di area pelabuhan</p>
+                <p><span class="time">[14:10]</span> Sinyal komunikasi aktif (encrypted)</p>
+                <p><span class="time">[16:30]</span> Menghilang dari radar</p>
+                <p><span class="time">[18:05]</span> Berpindah ke sektor barat</p>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2 class="section-title">Threat Level</h2>
+            <div class="threat-meter-container">
+                <div class="meter-glow">
+                    <div class="meter-bar"></div>
+                </div>
+            </div>
+            <p class="threat-level-text">
+            
+            <div class="threat-stats">
+                <div class="stat-row">
+                    <span class="label">KECERDASAN:</span>
+                    <span class="value">Sangat Tinggi</span>
+                </div>
+                <div class="stat-row">
+                    <span class="label">PERILAKU:</span>
+                    <span class="value">Tenang, sulit diprediksi</span>
+                </div>
+                <div class="stat-row">
+                    <span class="label">KELEMAHAN:</span>
+                    <span class="value">Tidak diketahui</span>
+                </div>
+                <div class="stat-row">
+                    <span class="label">POLA GERAK:</span>
+                    <span class="value">Random & cepat</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2 class="section-title" style="color: #d32f2f; font-size: 2.5rem; border-color: #d32f2f;">SECURE REPORT FORM</h2>
+        <form id="reportForm">
+            <div class="form-group">
+                <label>CALLSIGN AGEN / ID:</label>
+                <input type="text" placeholder="Masukkan ID Identifikasi Anda" required>
+            </div>
+            <div class="form-group">
+                <label>TITIK PENAMPAKAN:</label>
+                <input type="text" placeholder="Lokasi, Koordinat, atau Sektor" required>
+            </div>
+            <div class="form-group">
+                <label>INTEL TAMBAHAN:</label>
+                <textarea rows="4" placeholder="Jelaskan pergerakan target atau personel yang menyertai..." required></textarea>
+            </div>
+            <button type="submit" class="btn-claim" style="width: 100%; font-size: 1.2rem; padding: 15px;">TRANSMIT DATA</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const clickSound = new Audio('https://actions.google.com/sounds/v1/ui/button_click.ogg');
+    const alertSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+
+    window.addEventListener('load', function() {
+        // Tahan loading screen selama 2 detik (2000 ms)
+        setTimeout(function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.style.opacity = '0';
+            
+            // Hapus elemen setelah animasi fade out selesai (0.5 detik)
+            // Total waktu: 2.5s -> Disinilah delay CSS untuk konten utama dimulai
+            setTimeout(function() {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }, 2000);
+    });
+
+    const modal = document.getElementById("reportModal");
+    const btn = document.getElementById("openReportBtn");
+    const span = document.querySelector(".close-btn");
+    const form = document.getElementById("reportForm");
+
+    btn.onclick = function() {
+        clickSound.play();
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        clickSound.play();
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    form.onsubmit = function(event) {
+        event.preventDefault(); 
+        alertSound.play();
+        setTimeout(function() {
+            alert("TRANSMISI BERHASIL: Laporan diterima. Tim taktis sedang dikerahkan ke lokasi.");
+            modal.style.display = "none"; 
+            form.reset(); 
+        }, 300);
+    }
+</script>
+
+</body>
+</html>
