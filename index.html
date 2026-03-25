@@ -61,6 +61,7 @@
             color: #d32f2f;
             letter-spacing: 5px;
             animation: blinkText 1s infinite alternate;
+            text-align: center;
         }
 
         .loading-bar {
@@ -135,14 +136,13 @@
             box-shadow: 0 0 15px rgba(211, 47, 47, 0.5);
         }
 
-        /* --- TAMBAHAN: STYLE UNTUK TOMBOL SAAT LOADING SENDING --- */
         .btn-claim.sending-state {
             background-color: #444;
             color: #aaa;
             box-shadow: 0 0 15px rgba(100, 100, 100, 0.5);
             cursor: not-allowed;
             animation: sendingPulse 1s infinite alternate;
-            pointer-events: none; /* Mencegah double klik */
+            pointer-events: none;
         }
 
         .hero {
@@ -155,7 +155,7 @@
         .hero-text h1 {
             font-family: 'Chakra Petch', sans-serif;
             font-size: 4.5rem; 
-            line-height: 1;
+            line-height: 1.1;
             margin: 0;
             text-transform: uppercase;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -208,7 +208,6 @@
         .hero-image img {
             width: 100%;
             display: block;
-            /* Animasi float dihapus */
         }
 
         .details-grid {
@@ -380,14 +379,17 @@
 
         .modal-content {
             background-color: #111;
-            margin: 10% auto;
+            /* MARGIN DIHAPUS, DIGANTI ABSOLUTE POSITIONING AGAR TEPAT DI TENGAH */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             padding: 30px;
             border: 1px solid #d32f2f;
             border-radius: 8px;
             width: 90%;
             max-width: 500px;
             box-shadow: 0 0 30px rgba(211, 47, 47, 0.4);
-            position: relative; 
             overflow: hidden;
         }
 
@@ -408,6 +410,8 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
+            position: relative;
+            z-index: 2;
         }
 
         .close-btn:hover {
@@ -443,6 +447,63 @@
             border-color: #d32f2f;
         }
 
+        /* --- TAMBAHAN BARU: STYLE SUCCESS MODAL --- */
+        .success-content {
+            text-align: center;
+            border-color: #00e676;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.2);
+            padding: 40px 30px;
+        }
+        
+        .success-content::before {
+            background: rgba(0, 230, 118, 0.05);
+            animation: successBorderPulse 2s infinite alternate;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .success-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 10px rgba(0, 230, 118, 0.5));
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 1s ease-out 0.5s forwards;
+        }
+
+        .success-title {
+            font-family: 'Chakra Petch', sans-serif;
+            color: #00e676;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+        }
+
+        .success-message {
+            color: #cccccc;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .btn-success {
+            background-color: #00e676;
+            color: #0a0a0a;
+            width: 100%;
+            animation: none;
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.3);
+        }
+
+        .btn-success:hover {
+            background-color: #00c853;
+            box-shadow: 0 0 25px rgba(0, 230, 118, 0.6);
+        }
+
         /* --- TAMBAHAN: STYLE COPYRIGHT FOOTER --- */
         .cyber-footer {
             text-align: center;
@@ -462,7 +523,6 @@
         }
 
         /* --- KUMPULAN KEYFRAMES (ANIMASI) --- */
-        
         @keyframes fadeIn {
             0% { opacity: 0; transform: translateY(20px); filter: blur(5px); }
             100% { opacity: 1; transform: translateY(0); filter: blur(0); }
@@ -484,13 +544,10 @@
             100% { box-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
         }
 
-        /* --- TAMBAHAN: ANIMASI SENDING PULSE --- */
         @keyframes sendingPulse {
             from { background-color: #333; color: #888; }
             to { background-color: #555; color: #fff; }
         }
-
-        /* Animasi float dihapus */
 
         @keyframes blinkText {
             from { opacity: 0.3; }
@@ -532,16 +589,58 @@
             to { opacity: 1; transform: scale(1.01); }
         }
 
+        /* --- ANIMASI SUCCESS MODAL --- */
+        @keyframes successBorderPulse {
+            from { opacity: 0.5; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.02); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* --- PERBAIKAN TATA LETAK MOBILE (MINIMALIS & SEMPURNA) --- */
         @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+                padding-bottom: 15px;
+            }
+            .logo {
+                font-size: 1.6rem;
+            }
             .hero {
                 flex-direction: column;
                 text-align: center;
+                gap: 25px;
+                margin-bottom: 35px;
             }
             .hero-text h1 {
-                font-size: 3.5rem;
+                font-size: 2.8rem; /* Lebih proporsional di HP */
+            }
+            .bounty-amount {
+                font-size: 3.2rem; /* Menghindari overflow */
+            }
+            .hero-image {
+                width: 85%; /* Minimalis */
+                max-width: 280px;
             }
             .details-grid {
                 grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .section-box {
+                padding: 20px 15px; /* Lebih hemat ruang */
+            }
+            .section-title {
+                font-size: 1.6rem;
+            }
+            .modal-content {
+                width: 85%;
+                padding: 25px 20px;
             }
         }
     </style>
@@ -555,7 +654,7 @@
     <div class="loading-bar"></div>
 </div>
 
-<div class="container">
+    <div class="container">
     <header>
         <div class="logo">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -623,8 +722,7 @@
             
             <div class="threat-stats">
                 <div class="stat-row">
-                    <span
-                        class="label">KECERDASAN:</span>
+                    <span class="label">KECERDASAN:</span>
                     <span class="value">Sangat Tinggi</span>
                 </div>
                 <div class="stat-row">
@@ -650,7 +748,7 @@
 
 <div id="reportModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn">&times;</span>
+        <span class="close-btn" id="closeFormBtn">&times;</span>
         <h2 class="section-title" style="color: #d32f2f; font-size: 2.5rem; border-color: #d32f2f;">SECURE REPORT FORM</h2>
         
         <form id="reportForm">
@@ -674,9 +772,25 @@
     </div>
 </div>
 
+<div id="successModal" class="modal">
+    <div class="modal-content success-content">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        <h2 class="success-title">TRANSMISI BERHASIL</h2>
+        <p class="success-message">Laporan telah diterima ke Database HVT.<br>Tim taktis sedang dikerahkan ke lokasi.</p>
+        <button id="closeSuccessBtn" class="btn-claim btn-success" style="font-size: 1.2rem; padding: 12px;">TUTUP KOMUNIKASI</button>
+    </div>
+</div>
+
 <script>
     const clickSound = new Audio('https://actions.google.com/sounds/v1/ui/button_click.ogg');
     const alertSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+    // Sound sukses opsional
+    const successSound = new Audio('https://actions.google.com/sounds/v1/water/glass_water_pour.ogg'); // Suara netral untuk notif
 
     window.addEventListener('load', function() {
         setTimeout(function() {
@@ -690,70 +804,75 @@
     });
 
     const modal = document.getElementById("reportModal");
+    const successModal = document.getElementById("successModal");
     const btn = document.getElementById("openReportBtn");
-    const span = document.querySelector(".close-btn");
+    const closeFormBtn = document.getElementById("closeFormBtn");
+    const closeSuccessBtn = document.getElementById("closeSuccessBtn");
     const form = document.getElementById("reportForm");
-    const submitBtn = document.getElementById("submitBtn"); // Referensi untuk tombol submit
-    const formContext = form; // Simpan konteks form
+    const submitBtn = document.getElementById("submitBtn");
+    const formContext = form;
 
     btn.onclick = function() {
         clickSound.play();
         modal.style.display = "block";
     }
 
-    span.onclick = function() {
+    closeFormBtn.onclick = function() {
         clickSound.play();
         modal.style.display = "none";
     }
 
+    // Menutup modal sukses
+    closeSuccessBtn.onclick = function() {
+        clickSound.play();
+        successModal.style.display = "none";
+    }
+
+    // Menutup modal jika klik di luar box
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = "none";
         }
+        if (event.target == successModal) {
+            successModal.style.display = "none";
+        }
     }
 
-    // --- MODIFIKASI FUNGSI ONSUBMIT MENGGUNAKAN EMAILJS ---
     form.onsubmit = function(event) {
         event.preventDefault(); 
         
-        // TAMBAHAN UNTUK FITUR WAKTU OTOMATIS (Akan men-generate waktu lokal persis saat disubmit)
         const now = new Date();
         const formattedTime = now.toLocaleString('id-ID', { timeZone: 'Asia/Makassar' }) + ' WITA';
         document.getElementById('reportTime').value = formattedTime;
         
-        // Memulai efek animasi loading / "Sending..."
         const originalText = submitBtn.innerText;
         submitBtn.innerText = "ANALYZING DATA...";
         submitBtn.classList.add("sending-state");
 
-        // Delay 2.5 detik sebelum mengubah teks dan mengirim data
         setTimeout(function() {
             submitBtn.innerText = "TRANSMITTING DATA...";
             
-            // Proses pengiriman melalui EmailJS
             emailjs.sendForm('service_eqvchql', 'template_7hl23ue', formContext)
                 .then(function() {
-                    // Berhasil terkirim
+                    // MENGHAPUS ALERT BAWAAN DAN MENGGANTINYA DENGAN MODAL SUKSES
                     alertSound.play();
+                    
                     setTimeout(function() {
-                        alert("TRANSMISI BERHASIL: Laporan diterima ke Database HVT. Tim taktis sedang dikerahkan ke lokasi.");
+                        modal.style.display = "none"; // Tutup form
+                        successModal.style.display = "block"; // Buka pop-up sukses hijau
                         
-                        // Reset status tombol, form, dan sembunyikan modal
                         submitBtn.innerText = originalText;
                         submitBtn.classList.remove("sending-state");
-                        modal.style.display = "none"; 
                         formContext.reset(); 
                     }, 300);
                 }, function(error) {
-                    // Jika terjadi error saat pengiriman
                     console.log('FAILED...', error);
-                    alert("TRANSMISI GAGAL: Koneksi ke server terputus. Silakan coba lagi.");
+                    alert("TRANSMISI GAGAL: Koneksi ke server terputus. Silakan coba lagi."); // Alert gagal biarkan default untuk darurat
                     
-                    // Kembalikan tombol seperti semula
                     submitBtn.innerText = originalText;
                     submitBtn.classList.remove("sending-state");
                 });
-        }, 2500); // Waktu delay (2500ms = 2.5 detik)
+        }, 2500); 
     }
 </script>
 
