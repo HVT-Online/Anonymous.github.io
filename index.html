@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HVT: The Ghost</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            // INISIALISASI PUBLIC KEY EMAILJS KAMU
+            emailjs.init("M46Dd7EPjHyMNN8rq");
+        })();
+    </script>
     <style>
         /* --- MENGUBAH FONT MENJADI TEMA SCI-FI / TECH --- */
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&display=swap');
@@ -13,11 +20,11 @@
             padding: 0;
             background-color: #0a0a0a;
             color: #ffffff;
-            font-family: 'Share Tech Mono', monospace; /* Font Body Berubah */
+            font-family: 'Share Tech Mono', monospace; 
             background-image: radial-gradient(circle at 50% 0%, #1f1f1f 0%, #000000 70%);
             min-height: 100vh;
             overflow-x: hidden;
-            position: relative; /* Diperlukan untuk overlay scanlines */
+            position: relative; 
         }
 
         /* --- EFEK TAMBAHAN: SCANLINES OVERLAY (HALUS) --- */
@@ -29,7 +36,7 @@
             height: 100%;
             background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 2px);
             pointer-events: none;
-            z-index: 9998; /* Di bawah modal, di atas segalanya */
+            z-index: 9998; 
             animation: scanlineMove 5s linear infinite;
         }
 
@@ -49,7 +56,7 @@
         }
 
         .loading-text {
-            font-family: 'Chakra Petch', sans-serif; /* Font Heading Berubah */
+            font-family: 'Chakra Petch', sans-serif; 
             font-size: 2.5rem;
             color: #d32f2f;
             letter-spacing: 5px;
@@ -80,7 +87,7 @@
             max-width: 900px;
             margin: 0 auto;
             padding: 40px 20px;
-            position: relative; /* Diperlukan untuk elemen pseudo ber-animasi */
+            position: relative; 
             z-index: 1;
         }
 
@@ -91,7 +98,6 @@
             border-bottom: 1px solid #333;
             padding-bottom: 20px;
             margin-bottom: 40px;
-            /* Tambahan Animasi Fade-in untuk Header Keseluruhan */
             animation: fadeIn 1s ease-out 2.2s both;
         }
 
@@ -129,6 +135,16 @@
             box-shadow: 0 0 15px rgba(211, 47, 47, 0.5);
         }
 
+        /* --- TAMBAHAN: STYLE UNTUK TOMBOL SAAT LOADING SENDING --- */
+        .btn-claim.sending-state {
+            background-color: #444;
+            color: #aaa;
+            box-shadow: 0 0 15px rgba(100, 100, 100, 0.5);
+            cursor: not-allowed;
+            animation: sendingPulse 1s infinite alternate;
+            pointer-events: none; /* Mencegah double klik */
+        }
+
         .hero {
             display: flex;
             gap: 40px;
@@ -138,7 +154,7 @@
 
         .hero-text h1 {
             font-family: 'Chakra Petch', sans-serif;
-            font-size: 4.5rem; /* Disesuaikan sedikit agar fit dengan font baru */
+            font-size: 4.5rem; 
             line-height: 1;
             margin: 0;
             text-transform: uppercase;
@@ -180,23 +196,19 @@
             line-height: 1;
         }
 
-        /* --- PERBAIKAN ANIMASI FOTO PROFIL (FLOAT + FADE IN) --- */
         .hero-image {
             flex-shrink: 0;
             width: 350px;
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            /* border: 1px solid #333; */ /* --- GARIS TEPI DIHAPUS --- */
-            /* Fade in saja untuk kotaknya agar tidak bentrok dengan transform float */
             animation: fadeIn 1s ease-out 2.5s both; 
         }
 
         .hero-image img {
             width: 100%;
             display: block;
-            /* Float dipindahkan ke img secara langsung sehingga animasinya kembali normal */
-            animation: float 4s ease-in-out infinite;
+            /* Animasi float dihapus */
         }
 
         .details-grid {
@@ -215,7 +227,6 @@
             overflow: hidden;
         }
 
-        /* Efek Kilatan Cyberpunk Halus pada Hover Kotak */
         .section-box::after {
             content: '';
             position: absolute;
@@ -248,7 +259,6 @@
         .data-list p {
             margin: 10px 0;
             color: #aaaaaa;
-            /* Menambahkan dasar untuk animasi cascading pada teks */
             opacity: 0;
             animation: slideInRight 0.6s ease-out both;
         }
@@ -264,7 +274,6 @@
             display: flex;
             gap: 15px;
             align-items: center;
-            /* Menambahkan dasar untuk animasi cascading pada teks */
             opacity: 0;
             animation: slideInRight 0.6s ease-out both;
         }
@@ -293,7 +302,6 @@
             background: linear-gradient(90deg, #f57f17 0%, #d32f2f 100%);
             -webkit-mask-image: repeating-linear-gradient(to right, black, black 12px, transparent 12px, transparent 15px);
             mask-image: repeating-linear-gradient(to right, black, black 12px, transparent 12px, transparent 15px);
-            /* Tambahan Animasi Meter Bar Terisi */
             animation: fillMeter 1.5s ease-out 4s both, threatGlowPulse 3s infinite alternate;
         }
 
@@ -320,7 +328,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            /* Menambahkan dasar untuk animasi cascading pada teks */
             opacity: 0;
             animation: slideInRight 0.6s ease-out both;
         }
@@ -362,7 +369,7 @@
         .modal {
             display: none; 
             position: fixed;
-            z-index: 10000; /* Ditingkatkan di atas scanlines */
+            z-index: 10000; 
             left: 0;
             top: 0;
             width: 100%;
@@ -380,11 +387,10 @@
             width: 90%;
             max-width: 500px;
             box-shadow: 0 0 30px rgba(211, 47, 47, 0.4);
-            position: relative; /* Diperlukan untuk pseudo-elemen */
+            position: relative; 
             overflow: hidden;
         }
 
-        /* Efek Berdenyut di sekeliling modal */
         .modal-content::before {
             content: '';
             position: absolute;
@@ -437,6 +443,24 @@
             border-color: #d32f2f;
         }
 
+        /* --- TAMBAHAN: STYLE COPYRIGHT FOOTER --- */
+        .cyber-footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            font-family: 'Chakra Petch', sans-serif;
+            color: #555;
+            letter-spacing: 3px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            animation: fadeIn 1s ease-out 4.5s both;
+        }
+        
+        .cyber-footer span {
+            color: #d32f2f;
+        }
+
         /* --- KUMPULAN KEYFRAMES (ANIMASI) --- */
         
         @keyframes fadeIn {
@@ -444,13 +468,11 @@
             100% { opacity: 1; transform: translateY(0); filter: blur(0); }
         }
 
-        /* Animasi Baru: Slide dari kanan yang mulus untuk teks berurutan */
         @keyframes slideInRight {
             0% { opacity: 0; transform: translateX(-20px); filter: blur(3px); }
             100% { opacity: 1; transform: translateX(0); filter: blur(0); }
         }
 
-        /* Animasi Baru: Meter bar progres / pengisian */
         @keyframes fillMeter {
             0% { width: 0%; }
             100% { width: 100%; }
@@ -462,11 +484,13 @@
             100% { box-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
+        /* --- TAMBAHAN: ANIMASI SENDING PULSE --- */
+        @keyframes sendingPulse {
+            from { background-color: #333; color: #888; }
+            to { background-color: #555; color: #fff; }
         }
+
+        /* Animasi float dihapus */
 
         @keyframes blinkText {
             from { opacity: 0.3; }
@@ -493,19 +517,16 @@
             to { text-shadow: 0 0 20px rgba(255,255,255,0.2), 2px 2px 4px rgba(0,0,0,0.5); color: #f0f0f0; }
         }
 
-        /* Animasi Tambahan: Pergerakan halus scanlines overlay */
         @keyframes scanlineMove {
             0% { transform: translateY(0); }
             100% { transform: translateY(2px); }
         }
 
-        /* Animasi Tambahan: Denyut halus pada meteran ancaman */
         @keyframes threatGlowPulse {
             from { box-shadow: 0 0 5px rgba(211, 47, 47, 0.4); }
             to { box-shadow: 0 0 20px rgba(211, 47, 47, 0.7); }
         }
 
-        /* Animasi Tambahan: Denyut halus pada perbatasan modal */
         @keyframes modalBorderPulse {
             from { opacity: 0.5; transform: scale(1); }
             to { opacity: 1; transform: scale(1.01); }
@@ -598,11 +619,12 @@
                     <div class="meter-bar"></div>
                 </div>
             </div>
-            <p class="threat-level-text">
+                <p class="threat-level-text">
             
             <div class="threat-stats">
                 <div class="stat-row">
-                    <span class="label">KECERDASAN:</span>
+                    <span
+                        class="label">KECERDASAN:</span>
                     <span class="value">Sangat Tinggi</span>
                 </div>
                 <div class="stat-row">
@@ -620,26 +642,34 @@
             </div>
         </div>
     </div>
+    
+    <footer class="cyber-footer">
+        copyright ©️ 2026 <span>HVT Database Internasional</span>. All rights reserved.
+    </footer>
 </div>
 
 <div id="reportModal" class="modal">
     <div class="modal-content">
         <span class="close-btn">&times;</span>
         <h2 class="section-title" style="color: #d32f2f; font-size: 2.5rem; border-color: #d32f2f;">SECURE REPORT FORM</h2>
+        
         <form id="reportForm">
             <div class="form-group">
                 <label>CALLSIGN AGEN / ID:</label>
-                <input type="text" placeholder="Masukkan ID Identifikasi Anda" required>
+                <input type="text" name="callsign" placeholder="Masukkan ID Identifikasi Anda" required>
             </div>
             <div class="form-group">
                 <label>TITIK PENAMPAKAN:</label>
-                <input type="text" placeholder="Lokasi, Koordinat, atau Sektor" required>
+                <input type="text" name="location" placeholder="Lokasi, Koordinat, atau Sektor" required>
             </div>
             <div class="form-group">
                 <label>INTEL TAMBAHAN:</label>
-                <textarea rows="4" placeholder="Jelaskan pergerakan target atau personel yang menyertai..." required></textarea>
+                <textarea rows="4" name="intel" placeholder="Jelaskan pergerakan target atau personel yang menyertai..." required></textarea>
             </div>
-            <button type="submit" class="btn-claim" style="width: 100%; font-size: 1.2rem; padding: 15px;">TRANSMIT DATA</button>
+            
+            <input type="hidden" name="time" id="reportTime">
+            
+            <button type="submit" id="submitBtn" class="btn-claim" style="width: 100%; font-size: 1.2rem; padding: 15px;">TRANSMIT DATA</button>
         </form>
     </div>
 </div>
@@ -649,13 +679,10 @@
     const alertSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 
     window.addEventListener('load', function() {
-        // Tahan loading screen selama 2 detik (2000 ms)
         setTimeout(function() {
             const loadingScreen = document.getElementById('loading-screen');
             loadingScreen.style.opacity = '0';
             
-            // Hapus elemen setelah animasi fade out selesai (0.5 detik)
-            // Total waktu: 2.5s -> Disinilah delay CSS untuk konten utama dimulai
             setTimeout(function() {
                 loadingScreen.style.display = 'none';
             }, 500);
@@ -666,6 +693,8 @@
     const btn = document.getElementById("openReportBtn");
     const span = document.querySelector(".close-btn");
     const form = document.getElementById("reportForm");
+    const submitBtn = document.getElementById("submitBtn"); // Referensi untuk tombol submit
+    const formContext = form; // Simpan konteks form
 
     btn.onclick = function() {
         clickSound.play();
@@ -683,14 +712,48 @@
         }
     }
 
+    // --- MODIFIKASI FUNGSI ONSUBMIT MENGGUNAKAN EMAILJS ---
     form.onsubmit = function(event) {
         event.preventDefault(); 
-        alertSound.play();
+        
+        // TAMBAHAN UNTUK FITUR WAKTU OTOMATIS (Akan men-generate waktu lokal persis saat disubmit)
+        const now = new Date();
+        const formattedTime = now.toLocaleString('id-ID', { timeZone: 'Asia/Makassar' }) + ' WITA';
+        document.getElementById('reportTime').value = formattedTime;
+        
+        // Memulai efek animasi loading / "Sending..."
+        const originalText = submitBtn.innerText;
+        submitBtn.innerText = "ANALYZING DATA...";
+        submitBtn.classList.add("sending-state");
+
+        // Delay 2.5 detik sebelum mengubah teks dan mengirim data
         setTimeout(function() {
-            alert("TRANSMISI BERHASIL: Laporan diterima. Tim taktis sedang dikerahkan ke lokasi.");
-            modal.style.display = "none"; 
-            form.reset(); 
-        }, 300);
+            submitBtn.innerText = "TRANSMITTING DATA...";
+            
+            // Proses pengiriman melalui EmailJS
+            emailjs.sendForm('service_eqvchql', 'template_7hl23ue', formContext)
+                .then(function() {
+                    // Berhasil terkirim
+                    alertSound.play();
+                    setTimeout(function() {
+                        alert("TRANSMISI BERHASIL: Laporan diterima ke Database HVT. Tim taktis sedang dikerahkan ke lokasi.");
+                        
+                        // Reset status tombol, form, dan sembunyikan modal
+                        submitBtn.innerText = originalText;
+                        submitBtn.classList.remove("sending-state");
+                        modal.style.display = "none"; 
+                        formContext.reset(); 
+                    }, 300);
+                }, function(error) {
+                    // Jika terjadi error saat pengiriman
+                    console.log('FAILED...', error);
+                    alert("TRANSMISI GAGAL: Koneksi ke server terputus. Silakan coba lagi.");
+                    
+                    // Kembalikan tombol seperti semula
+                    submitBtn.innerText = originalText;
+                    submitBtn.classList.remove("sending-state");
+                });
+        }, 2500); // Waktu delay (2500ms = 2.5 detik)
     }
 </script>
 
